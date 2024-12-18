@@ -32,3 +32,6 @@ cursor() {
   # Run the cursor command and suppress background process output completely
   (nohup /opt/cursor.appimage "$@" >/dev/null 2>&1 &)
 }
+
+##### oh-my-posh config
+eval "$(oh-my-posh init bash --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/hul10.omp.json)":wq!
