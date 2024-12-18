@@ -24,14 +24,37 @@ if [ -d ~/.bashrc.d ]; then
 fi
 unset rc
 
-#### Aliases
-alias vim=nvim
+#==============================================================================
+# Environment Variables & Exports
+#==============================================================================
+export PATH=$HOME/.local/bin:$PATH
+export EDITOR=nvim
 
-#### Cursor Terminal workaround
+
+#==============================================================================
+# Aliases
+#==============================================================================
+alias vim=nvim
+alias ls='ls --color=auto'
+alias ll='ls -l'
+alias la='ls -la'
+alias tf='terraform'
+alias tfa='terraform apply'
+alias tfi='terraform init'
+alias tfp='terraform plan'
+alias tfd='terraform destroy'
+
+
+#==============================================================================
+# Cursor Terminal workaround
+#==============================================================================
 cursor() {
   # Run the cursor command and suppress background process output completely
   (nohup /opt/cursor.appimage "$@" >/dev/null 2>&1 &)
 }
 
-##### oh-my-posh config
-eval "$(oh-my-posh init bash --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/hul10.omp.json)":wq!
+
+#==============================================================================
+# oh-my-posh Configuration
+#==============================================================================
+eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh-themes/hupfer01.omp.json)"
