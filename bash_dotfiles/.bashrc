@@ -29,7 +29,7 @@ unset rc
 #==============================================================================
 export PATH=$HOME/.local/bin:$PATH
 export EDITOR=nvim
-
+export AGNOSTICD_HOME=${HOME}/development/agnosticd-dev/agnosticd
 
 #==============================================================================
 # Aliases
