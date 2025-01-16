@@ -7,3 +7,5 @@ To install firejail on Fedora/RHEL systems:
 ```
 sudo dnf install firejail
 ```
+
+Also, it's recommended to create a symbolic link to your `.bashrc` file:
