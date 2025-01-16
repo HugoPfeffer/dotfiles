@@ -49,10 +49,9 @@ alias tfd='terraform destroy'
 # Cursor Terminal workaround
 #==============================================================================
 cursor() {
-  # Run the cursor command and suppress background process output completely
-  (nohup /opt/cursor.appimage "$@" >/dev/null 2>&1 &)
+    # Run the cursor command with firejail and suppress background process output
+    (nohup firejail --noprofile /opt/cursor.appimage "$@" >/dev/null 2>&1 &)
 }
-
 
 #==============================================================================
 # oh-my-posh Configuration
