@@ -49,8 +49,14 @@ alias tfd='terraform destroy'
 # Cursor Terminal workaround
 #==============================================================================
 cursor() {
-    # Run the cursor command with firejail and suppress background process output
-    (nohup firejail --noprofile /opt/cursor.appimage "$@" >/dev/null 2>&1 &)
+    # Create the log directory if it doesn't exist
+    mkdir -p ~/.cursor_logs
+
+    # Get the current date and time for the log filename
+    log_file="~/.cursor_logs/$(date '+%Y-%m-%d_%H-%M-%S').log"
+
+    # Run the AppImage with firejail and redirect output to the log file
+    (nohup firejail --noprofile --trace /opt/cursor.appimage "$@" >"$log_file" 2>&1 &)
 }
 
 #==============================================================================
