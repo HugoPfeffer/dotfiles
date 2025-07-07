@@ -29,7 +29,9 @@ unset rc
 #==============================================================================
 export PATH=$HOME/.local/bin:$PATH
 export EDITOR=nvim
-export AGNOSTICD_HOME=${HOME}/development/agnosticd-dev/agnosticd
+export AGNOSTICD_HOME=${HOME}/demos_deployer/agnosticd
+export AGNOSTICV_HOME=${HOME}/demos_deployer/agnosticv
+export DEPLOY_CONFIGS_HOME=${HOME}/demos_deployer/hpfeffer_configs
 
 #==============================================================================
 # Aliases
@@ -43,6 +45,8 @@ alias tfa='terraform apply'
 alias tfi='terraform init'
 alias tfp='terraform plan'
 alias tfd='terraform destroy'
+alias gen-guid='echo $(uuidgen | cut -d - -f 2 | tr '[:upper:]' '[:lower:]')'
+alias rhel-start="virsh start rhel8.10"
 
 
 #==============================================================================
@@ -50,16 +54,52 @@ alias tfd='terraform destroy'
 #==============================================================================
 cursor() {
     # Create the log directory if it doesn't exist
-    mkdir -p ~/.cursor_logs
+    mkdir -p "$HOME/.cursor_logs"
 
     # Get the current date and time for the log filename
-    log_file="~/.cursor_logs/$(date '+%Y-%m-%d_%H-%M-%S').log"
+    log_file="$HOME/.cursor_logs/$(date '+%Y-%m-%d_%H-%M-%S').log"
 
-    # Run the AppImage with firejail and redirect output to the log file
-    (nohup firejail --noprofile --trace /opt/cursor.appimage "$@" >"$log_file" 2>&1 &)
+    # Run the AppImage and redirect output to the log file
+    (/opt/cursor.appimage "$@" >"$log_file" 2>&1 &)
+}
+
+#==============================================================================
+# vless - open a file in VS Code with the cursor terminal workaround
+#==============================================================================
+vless() {
+  tmpfile=$(mktemp /tmp/vless.XXXXXX)
+  if [ -t 0 ]; then
+    # No piped input, use arguments (files)
+    cat "$@" > "$tmpfile"
+  else
+    # Piped input
+    cat > "$tmpfile"
+  fi
+  cursor --reuse-window "$tmpfile"
 }
 
 #==============================================================================
 # oh-my-posh Configuration
 #==============================================================================
 eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh-themes/hupfer01.omp.json)"
+
+
+#==============================================================================
+# Shell-GPT integration BASH v0.2
+#==============================================================================
+_sgpt_bash() {
+if [[ -n "$READLINE_LINE" ]]; then
+    READLINE_LINE=$(sgpt --shell <<< "$READLINE_LINE" --no-interaction)
+    READLINE_POINT=${#READLINE_LINE}
+fi
+}
+bind -x '"\C-l": _sgpt_bash'
+
+#==============================================================================
+# Instantly run previous command with sudo using Alt+S
+#==============================================================================
+sudo_last_command() {
+    READLINE_LINE="sudo $(history -p !!)"
+    READLINE_POINT=${#READLINE_LINE}
+}
+bind -x '"\es": sudo_last_command'
