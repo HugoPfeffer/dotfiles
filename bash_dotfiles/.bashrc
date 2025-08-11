@@ -47,7 +47,13 @@ alias tfp='terraform plan'
 alias tfd='terraform destroy'
 alias gen-guid='echo $(uuidgen | cut -d - -f 2 | tr '[:upper:]' '[:lower:]')'
 alias rhel-start="virsh start rhel8.10"
-
+# Task Master aliases added on 7/7/2025
+alias tm='task-master'
+alias taskmaster='task-master'
+# Netprobe aliases added on 17/7/2025
+alias netprobe-start='cd /home/hpfeffer/development/internet-benchmark/netprobe_lite && podman compose up -d && xdg-open http://192.168.1.110:3001/d/app/netprobe && cd -'
+alias netprobe-stop='cd /home/hpfeffer/development/internet-benchmark/netprobe_lite && podman compose down && cd -'
+alias claude="/home/hpfeffer/.claude/local/claude"
 
 #==============================================================================
 # Cursor Terminal workaround
@@ -93,7 +99,10 @@ if [[ -n "$READLINE_LINE" ]]; then
     READLINE_POINT=${#READLINE_LINE}
 fi
 }
-bind -x '"\C-l": _sgpt_bash'
+# Only bind in interactive shells
+if [[ $- == *i* ]]; then
+    bind -x '"\C-l": _sgpt_bash'
+fi
 
 #==============================================================================
 # Instantly run previous command with sudo using Alt+S
@@ -102,4 +111,9 @@ sudo_last_command() {
     READLINE_LINE="sudo $(history -p !!)"
     READLINE_POINT=${#READLINE_LINE}
 }
-bind -x '"\es": sudo_last_command'
+# Only bind in interactive shells
+if [[ $- == *i* ]]; then
+    bind -x '"\es": sudo_last_command'
+fi
+
+
