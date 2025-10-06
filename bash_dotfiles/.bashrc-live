@@ -32,8 +32,14 @@ export EDITOR=nvim
 export AGNOSTICD_HOME=${HOME}/demos_deployer/agnosticd
 export AGNOSTICV_HOME=${HOME}/demos_deployer/agnosticv
 export DEPLOY_CONFIGS_HOME=${HOME}/demos_deployer/hpfeffer_configs
-export FIGMA_API_KEY="API_TOKEN"
-export BW_SESSION="API_TOKEN"
+export FIGMA_API_KEY=$(bws secret get secret-id | jq -r '.value')
+export CONTEXT7_API_KEY=$(bws secret get secret-id | jq -r '.value')
+export FIRECRAWL_API_KEY=$(bws secret get secret-id | jq -r '.value')
+export GITHUB_BOOM_CITY_PAT=$(bws secret get secret-id | jq -r '.value')
+export GITHUB_DEV_BOOM_CITY_PAT=$(bws secret get secret-id | jq -r '.value')
+export GITHUB_PACKAGES_PAT=$(bws secret get secret-id | jq -r '.value')
+export BW_SESSION="TOKEN"
+export BWS_ACCESS_TOKEN="TOKEN"
 
 #==============================================================================
 # Aliases
@@ -61,7 +67,7 @@ alias bashrc_source='source ~/.bashrc'
 alias specify='uvx --from git+https://github.com/github/spec-kit.git specify'
 alias ccdsp='claude --dangerously-skip-permissions'
 alias start-dev-rocky="sudo virsh start rocky9-fivem-dev && tmux && ssh hpfeffer@rocky-vm"
-
+alias lab-ssh="ssh -i ~/.ssh/rht_classroom.rsa -J cloud-user@148.62.93.250:22022 student@172.25.252.1 -p 53009"
 # Open remote home directory
 # code --remote ssh-remote+hostname ~
 
@@ -139,4 +145,42 @@ fi
 
 source "/home/hpfeffer/development/boom-dev/git-subrepo/.rc"
 
-alias lab-ssh="ssh -i ~/.ssh/rht_classroom.rsa -J cloud-user@148.62.93.250:22022 student@172.25.252.1 -p 53009"
+#==============================================================================
+# GitHub CLI PAT switcher
+#==============================================================================
+
+gh-switch() {
+    case "$1" in
+        boom-city|bc)
+            export GH_TOKEN=$GITHUB_BOOM_CITY_PAT
+            echo "✓ Switched to BOOM_CITY PAT"
+            ;;
+        dev-boom-city|dbc)
+            export GH_TOKEN=$GITHUB_DEV_BOOM_CITY_PAT
+            echo "✓ Switched to DEV_BOOM_CITY PAT"
+            ;;
+        packages|pkg)
+            export GH_TOKEN=$GITHUB_PACKAGES_PAT
+            echo "✓ Switched to PACKAGES PAT"
+            ;;
+        clear|off)
+            unset GH_TOKEN
+            echo "✓ Cleared GH_TOKEN (using default gh auth)"
+            ;;
+        status|"")
+            if [ -n "$GH_TOKEN" ]; then
+                echo "Current: Using GH_TOKEN override"
+            else
+                echo "Current: Using default gh auth"
+            fi
+            gh auth status 2>/dev/null || echo "No authentication found"
+            return 0
+            ;;
+        *)
+            echo "Usage: gh-switch [boom-city|dev-boom-city|packages|clear|status]"
+            echo "Aliases: bc, dbc, pkg, off"
+            return 1
+            ;;
+    esac
+    gh auth status 2>/dev/null || echo "Token set, but may need verification"
+}
