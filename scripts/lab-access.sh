@@ -165,14 +165,16 @@ delete_known_hosts() {
     fi
 }
 
-# Function to remove existing 'lab' host entry from SSH config
+# Function to remove existing 'lab', 'servera', and 'serverb' host entries from SSH config
 remove_lab_ssh_config() {
     local ssh_config="$SSH_DIR/config"
     
     if [ -f "$ssh_config" ]; then
-        echo "Removing existing 'lab' host entry from SSH config..."
-        # Remove from "Host lab" to the next "Host" line or end of file
-        sed -i '/^Host lab$/,/^Host /{ /^Host lab$/d; /^Host /!d; }; /^Host lab$/,${/^Host lab$/d;}' "$ssh_config"
+        echo "Removing existing 'lab', 'servera', and 'serverb' host entries from SSH config..."
+        # Remove lab, servera, and serverb host entries
+        for host in lab servera serverb; do
+            sed -i "/^Host $host$/,/^Host /{ /^Host $host$/d; /^Host /!d; }; /^Host $host$/,\${/^Host $host$/d;}" "$ssh_config"
+        done
     fi
 }
 
@@ -182,7 +184,7 @@ create_ssh_config_entry() {
     local target_user="${TARGET_HOST%%@*}"
     local target_ip="${TARGET_HOST#*@}"
     
-    echo "Creating SSH config entry for 'lab' host..."
+    echo "Creating SSH config entries for 'lab', 'servera', and 'serverb' hosts..."
     
     # Create SSH config if it doesn't exist
     touch "$ssh_config"
@@ -199,6 +201,22 @@ Host lab
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     ProxyCommand ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p -p $JUMP_PORT $JUMP_USER@$JUMP_IP
+
+Host servera
+    HostName servera
+    User student
+    IdentityFile ~/.ssh/$KEY_NAME
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ProxyJump lab
+
+Host serverb
+    HostName serverb
+    User student
+    IdentityFile ~/.ssh/$KEY_NAME
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ProxyJump lab
 EOF
 }
 
@@ -268,7 +286,11 @@ main() {
     echo "You can now connect to the lab by simply running:"
     echo "  ssh lab"
     echo ""
-    echo "SSH config created for 'lab' host with all connection details."
+    echo "You can also connect to servera and serverb through lab:"
+    echo "  ssh servera"
+    echo "  ssh serverb"
+    echo ""
+    echo "SSH config created for 'lab', 'servera', and 'serverb' hosts."
     echo ""
     echo "When prompted for a password, use: student"
 }
