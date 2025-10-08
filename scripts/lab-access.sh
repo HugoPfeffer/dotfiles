@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to automate Red Hat lab SSH key setup
-# Usage: ./lab-access.sh <path/to/rht_classroom.rsa> [-n|--name <custom_name>]
+# Usage: ./lab-access.sh <path/to/rht_classroom.rsa> [-n|--name <custom_name>] [-h|--help]
 
 set -e
 
@@ -11,11 +11,21 @@ SSH_DIR="$HOME/.ssh"
 
 # Parse arguments
 show_usage() {
-    echo "Usage: $0 <path/to/rht_classroom.rsa> [-n|--name <custom_name>]"
-    echo "Example: $0 ~/Downloads/rht_classroom.rsa"
-    echo "Example: $0 ~/Downloads/rht_classroom.rsa -n rhcsa_2.rsa"
+    echo "Usage: $0 <path/to/rht_classroom.rsa> [-n|--name <custom_name>] [-h|--help]"
+    echo "Options:"
+    echo "  -n, --name <name>    Specify a custom name for the key file (default: rht_classroom.rsa)"
+    echo "  -h, --help           Display this help message and exit"
+    echo ""
+    echo "Examples:"
+    echo "  $0 ~/Downloads/rht_classroom.rsa"
+    echo "  $0 ~/Downloads/rht_classroom.rsa -n rhcsa_2.rsa"
     exit 1
 }
+
+# Display help if requested
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    show_usage
+fi
 
 # Check if at least one argument is provided
 if [ $# -eq 0 ]; then
@@ -31,6 +41,9 @@ while [[ $# -gt 0 ]]; do
         -n|--name)
             KEY_NAME="$2"
             shift 2
+            ;;
+        -h|--help)
+            show_usage
             ;;
         *)
             echo "Unknown option: $1"
@@ -89,7 +102,7 @@ echo "Activating alias for current session..."
 alias "$ALIAS_NAME"="$SSH_COMMAND"
 
 echo ""
-echo " Setup complete!"
+echo " Setup complete!"
 echo ""
 echo "You can now connect to the lab by running:"
 echo "  $ALIAS_NAME"
